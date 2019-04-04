@@ -1,0 +1,47 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+metadata:
+  template_name: GcCloudProvider
+  template_author: yaniv.k
+  template_version: 0.1.0
+  template_icon: shell-icon.png
+
+description: >
+  sample deployment path file
+
+imports:
+  - cloudshell_standard: cloudshell_cloud_provider_standard_1_0_0.yaml
+
+node_types:
+
+  vendor.resource.Google Cloud Custom VM:
+    derived_from: cloudshell.nodes.CustomDeploymentOption
+    properties:
+      Image Id:
+        type: string
+        description: 'The id of the image to be used for deploying the app.'
+        default: ''
+        tags: [user_input]
+      Machine Type:
+        type: string
+        description: 'The size of the instance. Can be one of the pre-defined ones or a custom one.'
+        default: 'n1-standard-1'
+        #constraints: f1-micro, g1-small, n1-standard-1, n1-standard-2, n1-standard-4, n1-standard-8
+        tags: [user_input]
+      Disk Type:
+        type: string
+        description: The type of the disk drive. Standard or SSD.
+        default: 'Standard'
+        #constraints: 'Standard', 'SSD'
+        tags: [user_input]
+      Disk Size:
+        type: string
+        description: 'The size of the disk in GB.'
+        default: '10'
+        tags: [user_input]
+
+    artifacts:
+      icon:
+        file: shell-icon.png
+        type: tosca.artifacts.File
+
