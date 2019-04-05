@@ -103,18 +103,12 @@ class GcCloudProviderDriver (ResourceDriverInterface):
                                                                  deploy_action,
                                                                  connect_subnet_actions,
                                                                  cancellation_context)
-                # elif deployment_name == 'Google Cloud Provider.Google Cloud VM from Template':
-                #     deploy_results = gcp_service.deploy_instance_from_template(context, cloudshell_session,
-                #                                                               cloud_provider_resource,
-                #                                                               deploy_action,
-                #                                                               connect_subnet_actions,
-                #                                                               cancellation_context)
-                # elif deployment_name == 'Google Cloud Provider.Google Cloud VM from Marketplace':
-                #     deploy_results = gcp_service.deploy_instance_from_marketplace(context, cloudshell_session,
-                #                                                               cloud_provider_resource,
-                #                                                               deploy_action,
-                #                                                               connect_subnet_actions,
-                #                                                               cancellation_context)
+                elif deployment_name == 'Google Cloud Provider.Google Cloud VM from Template':
+                    deploy_results = gcp_service.deploy_instance_from_template(context, cloudshell_session,
+                                                                               cloud_provider_resource,
+                                                                               deploy_action,
+                                                                               connect_subnet_actions,
+                                                                               cancellation_context)
                 else:
                     raise ValueError(deployment_name + ' deployment option is not supported.')
 

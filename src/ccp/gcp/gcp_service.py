@@ -186,9 +186,9 @@ class GCPService:
             #TODO: replace characters not matching the allowed pattern
             vm_unique_name = self.normalize_name(deploy_app_action.actionParams.appName) + '--' + str(uuid.uuid4())[:6]
 
-            input_user = deploy_app_action.actionParams.appResource.attributes['User']
-            encrypted_pass = deploy_app_action.actionParams.appResource.attributes['Password']
-            decrypted_input_password = cloudshell_session.DecryptPassword(encrypted_pass).Value
+            # input_user = deploy_app_action.actionParams.appResource.attributes['User']
+            # encrypted_pass = deploy_app_action.actionParams.appResource.attributes['Password']
+            # decrypted_input_password = cloudshell_session.DecryptPassword(encrypted_pass).Value
 
             deployed_app_attributes = []
 
@@ -214,30 +214,9 @@ class GCPService:
                                                     deployment_model_attributes['Google Cloud Provider.Google Cloud Custom VM.Machine Type'],
                                                     deployment_model_attributes['Google Cloud Provider.Google Cloud Custom VM.Disk Type'],
                                                     deployment_model_attributes['Google Cloud Provider.Google Cloud Custom VM.Disk Size'],
-                                                    network_data,
-                                                    input_user,
-                                                    decrypted_input_password)
+                                                    network_data)
             except Exception as e:
                 return DeployAppResult(actionId=deploy_app_action.actionId, success=False, errorMessage=e.message)
-
-            # # Creating VmDetailsData
-            # vm_details_data = self.extract_vm_details(vm_instance)
-            #
-            # # result must include the action id it results for, so server can match result to action
-            # action_id = deploy_app_action.actionId
-            #
-            # # optional
-            # # deployedAppAdditionalData can contain dynamic data on the deployed app
-            # # similar to AWS tags
-            # deployed_app_additional_data_dict = {'Reservation Id': context.reservation.reservation_id,
-            #                                      'CreatedBy': str(os.path.abspath(__file__))}
-            #
-            # deploy_result = DeployAppResult(actionId=action_id, success=True, vmUuid=vm_instance.id,
-            #                                 vmName=vm_unique_name,
-            #                                 deployedAppAddress=vm_instance.private_ip,
-            #                                 deployedAppAttributes=deployed_app_attributes,
-            #                                 deployedAppAdditionalData=deployed_app_additional_data_dict,
-            #                                 vmDetailsData=vm_details_data)
 
             connect_subnet_results = []
             for connect_subnet_action in connect_subnet_actions:
@@ -255,90 +234,66 @@ class GCPService:
             self.logger.error(ex.message)
             raise ex
 
-    # def deploy_instance_from_template(context, cloudshell_session, cloud_provider_resource, deploy_app_action,
-    #                                       connect_subnet_actions,
-    #                                       cancellation_context):
-    #
-    #     if cancellation_context.is_cancelled:
-    #         HeavenlyCloudService.rollback()
-    #         return DeployAppResult(actionId=deploy_app_action.actionId, success=False,
-    #                                errorMessage='Operation canceled')
-    #
-    #     # deployment_model type : HeavenlyCloudAngelDeploymentModel
-    #     deployment_model = deploy_app_action.actionParams.deployment.customModel
-    #
-    #     # generate unique name to avoid name collisions
-    #     vm_unique_name = deploy_app_action.actionParams.appName + '__' + str(uuid.uuid4())[:6]
-    #
-    #     input_user = deploy_app_action.actionParams.appResource.attributes['User']
-    #     encrypted_pass = deploy_app_action.actionParams.appResource.attributes['Password']
-    #     decrypted_input_password = cloudshell_session.DecryptPassword(encrypted_pass).Value
-    #
-    #     deployed_app_attributes = []
-    #
-    #     if not decrypted_input_password:
-    #         decrypted_input_password = HeavenlyCloudService.create_new_password(cloud_provider_resource, input_user,
-    #                                                                             decrypted_input_password)
-    #         # optional
-    #         # deployedAppAttributes contains the attributes on the deployed app
-    #         # use to override attributes default values
-    #         deployed_app_attributes.append(Attribute('Password', decrypted_input_password))
-    #
-    #     # convert the ConnectSubnet actions to networking metadata for cloud provider SDK
-    #     network_data = HeavenlyCloudService.prepare_network_for_instance(connect_subnet_actions)
-    #
-    #     try:
-    #         # using cloud provider SDK, creating the instance
-    #         vm_instance = HeavenlyCloudService.create_man_instance(input_user, decrypted_input_password,
-    #                                                                cloud_provider_resource,
-    #                                                                vm_unique_name,
-    #                                                                deployment_model.weight,
-    #                                                                deployment_model.height,
-    #                                                                deployment_model.cloud_size,
-    #                                                                deployment_model.cloud_image_id)
-    #     except Exception as e:
-    #         return DeployAppResult(actionId=deploy_app_action.actionId, success=False, errorMessage=e.message)
-    #
-    #     # Creating VmDetailsData
-    #     vm_details_data = HeavenlyCloudServiceWrapper.extract_vm_details(vm_instance)
-    #
-    #     # result must include the action id it results for, so server can match result to action
-    #     action_id = deploy_app_action.actionId
-    #
-    #     # optional
-    #     # deployedAppAttributes contains the attributes on the deployed app
-    #     # use to override attributes default values
-    #     deployed_app_attributes = [Attribute('Password', new_pass)]
-    #
-    #     # optional
-    #     # deployedAppAdditionalData can contain dynamic data on the deployed app
-    #     # similar to AWS tags
-    #     deployed_app_additional_data_dict = {'Reservation Id': context.reservation.reservation_id,
-    #                                          'CreatedBy': str(os.path.abspath(__file__))}
-    #
-    #     deploy_result = DeployAppResult(actionId=action_id, success=True, vmUuid=vm_instance.id,
-    #                                     vmName=vm_unique_name,
-    #                                     deployedAppAddress=vm_instance.private_ip,
-    #                                     deployedAppAttributes=deployed_app_attributes,
-    #                                     deployedAppAdditionalData=deployed_app_additional_data_dict,
-    #                                     vmDetailsData=vm_details_data)
-    #
-    #     connect_subnet_results = []
-    #     for connect_subnet_action in connect_subnet_actions:
-    #         connect_subnet_results.append(
-    #             ConnectToSubnetActionResult(connect_subnet_action.actionId,
-    #                                         interface=network_data[connect_subnet_action.actionParams.subnetId]))
-    #
-    #     check_cancellation_context_and_do_rollback(cancellation_context)
-    #
-    #     return [deploy_result].extend(connect_subnet_results)
+    def deploy_instance_from_template(self, context, cloudshell_session, cloud_provider_resource, deploy_app_action,
+                                          connect_subnet_actions,
+                                          cancellation_context):
+        try:
+            # generate unique name to avoid name collisions
+            #allowed name pattern: (?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)
+            #TODO: replace characters not matching the allowed pattern
+            vm_unique_name = self.normalize_name(deploy_app_action.actionParams.appName) + '--' + str(uuid.uuid4())[:6]
+
+            # input_user = deploy_app_action.actionParams.appResource.attributes['User']
+            # encrypted_pass = deploy_app_action.actionParams.appResource.attributes['Password']
+            # decrypted_input_password = cloudshell_session.DecryptPassword(encrypted_pass).Value
+
+            deployed_app_attributes = []
+
+            # if not decrypted_input_password:
+            #     decrypted_input_password = HeavenlyCloudService.create_new_password(cloud_provider_resource, input_user,
+            #                                                                         decrypted_input_password)
+            #     # optional
+            #     # deployedAppAttributes contains the attributes on the deployed app
+            #     # use to override attributes default values
+            #     deployed_app_attributes.append(Attribute('Password', decrypted_input_password))
+
+            # convert the ConnectSubnet actions to networking metadata for cloud provider SDK
+            network_data = self.prepare_network_for_instance(connect_subnet_actions)
+
+            deployment_model_attributes = deploy_app_action.actionParams.deployment.attributes
+            try:
+                # using cloud provider SDK, creating the instance
+                # TODO: take the attributes from somewhere else (or get them as inputs to this function)
+                deploy_result = self._create_instance_from_template(deploy_app_action.actionId,
+                                                                    cloud_provider_resource,
+                                                                    vm_unique_name,
+                                                                    deployment_model_attributes[
+                                                                        'Google Cloud Provider.Google Cloud VM from Template.Template Name'],
+                                                                    network_data)
+            except Exception as e:
+                return DeployAppResult(actionId=deploy_app_action.actionId, success=False, errorMessage=e.message)
+
+            connect_subnet_results = []
+            for connect_subnet_action in connect_subnet_actions:
+                connect_subnet_results.append(
+                    ConnectToSubnetActionResult(connect_subnet_action.actionId,
+                                                interface=network_data[connect_subnet_action.actionParams.subnetId]))
+
+            #check_cancellation_context_and_do_rollback(cancellation_context)
+            result = [deploy_result]
+            if len(connect_subnet_results) > 0:
+                result.extend(connect_subnet_results)
+
+            return result
+        except Exception as ex:
+            self.logger.error(ex.message)
+            raise ex
+
 
     def _create_instance(self, actionId, cloud_provider_resource, vm_unique_name, image_id, machine_type,
-                         disk_type, disk_size, network_data, input_user, decrypted_input_password):
+                         disk_type, disk_size, network_data, input_user='', decrypted_input_password=''):
 
         client = self._get_client()
-
-        self.logger.info("network_data: " + str(network_data))
 
         region = "us-west1"  # TODO: take from resource, maybe in init
         zone = 'us-west1-b' # TODO: take from app? or cp?
@@ -403,9 +358,42 @@ class GCPService:
             "deletionProtection": False
         }
 
-        self.logger.info("instance_body: " + str(instance_body))
+        self.logger.debug("instance_body: " + str(instance_body))
 
         request = client.instances().insert(project=self.project, zone=zone, body=instance_body)
+        response = request.execute()
+        zone_wait(client, self.project, zone, response['name'])
+
+        vm_details_data = self.extract_vm_details(vm_unique_name, zone)
+
+        return DeployAppResult(actionId=actionId,
+                               success=True,
+                               vmUuid=vm_details_data.vmInstanceData[0].value,
+                               vmName=vm_unique_name,
+                               deployedAppAddress=vm_details_data.vmNetworkData[0].privateIpAddress,
+                               vmDetailsData=vm_details_data)
+
+    def _create_instance_from_template(self, actionId, cloud_provider_resource, vm_unique_name, template_name,
+                                       network_data, input_user='', decrypted_input_password=''):
+
+        client = self._get_client()
+
+        region = "us-west1"  # TODO: take from resource, maybe in init
+        zone = 'us-west1-b' # TODO: take from app? or cp?
+        subnet = network_data.keys()[0] # TODO: handle multiple networks?
+
+        request = client.instanceTemplates().get(project=self.project, instanceTemplate=template_name)
+        response = request.execute()
+        instance_template_url = response["selfLink"]
+
+        body_for_template = {"name": vm_unique_name,
+                             "networkInterfaces": [
+                                 {
+                                     "subnetwork": "projects/{}/regions/{}/subnetworks/{}".format(self.project, region,
+                                                                                                  subnet),
+                                 }]}
+        request = client.instances().insert(project=self.project, zone=zone, body=body_for_template,
+                                            sourceInstanceTemplate=instance_template_url)
         response = request.execute()
         zone_wait(client, self.project, zone, response['name'])
 
