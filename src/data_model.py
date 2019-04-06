@@ -278,7 +278,7 @@ class GoogleCloudProvider(object):
 class GoogleCloudCustomVM(object):
     def __init__(self, name):
         """
-        
+        Create a single VM instance from scratch
         """
         self.attributes = {}
         self.resources = {}
@@ -356,6 +356,21 @@ class GoogleCloudCustomVM(object):
         :return:
         """
         return 'Google Cloud Custom VM'
+
+    @property
+    def image_project(self):
+        """
+        :rtype: str
+        """
+        return self.attributes['Google Cloud Provider.Google Cloud Custom VM.Image Project'] if 'Google Cloud Provider.Google Cloud Custom VM.Image Project' in self.attributes else None
+
+    @image_project.setter
+    def image_project(self, value=''):
+        """
+        The project of the image to be used for deploying the app.
+        :type value: str
+        """
+        self.attributes['Google Cloud Provider.Google Cloud Custom VM.Image Project'] = value
 
     @property
     def image_id(self):
@@ -481,7 +496,7 @@ class GoogleCloudCustomVM(object):
 class GoogleCloudVMfromTemplate(object):
     def __init__(self, name):
         """
-        
+        Create a single VM instance from an existing template
         """
         self.attributes = {}
         self.resources = {}
@@ -559,6 +574,21 @@ class GoogleCloudVMfromTemplate(object):
         :return:
         """
         return 'Google Cloud VM from Template'
+
+    @property
+    def template_name(self):
+        """
+        :rtype: str
+        """
+        return self.attributes['Google Cloud Provider.Google Cloud VM from Template.Template Name'] if 'Google Cloud Provider.Google Cloud VM from Template.Template Name' in self.attributes else None
+
+    @template_name.setter
+    def template_name(self, value=''):
+        """
+        The name of the template that should be used
+        :type value: str
+        """
+        self.attributes['Google Cloud Provider.Google Cloud VM from Template.Template Name'] = value
 
     @property
     def autoload(self):

@@ -204,17 +204,19 @@ class GCPService:
             network_data = self.prepare_network_for_instance(connect_subnet_actions)
 
             deployment_model_attributes = deploy_app_action.actionParams.deployment.attributes
+            deployment_path = deploy_app_action.actionParams.deployment.deploymentPath
             try:
                 # using cloud provider SDK, creating the instance
                 # TODO: take the attributes from somewhere else (or get them as inputs to this function)
                 deploy_result = self._create_instance(deploy_app_action.actionId,
-                                                    cloud_provider_resource,
-                                                    vm_unique_name,
-                                                    deployment_model_attributes['Google Cloud Provider.Google Cloud Custom VM.Image Id'],
-                                                    deployment_model_attributes['Google Cloud Provider.Google Cloud Custom VM.Machine Type'],
-                                                    deployment_model_attributes['Google Cloud Provider.Google Cloud Custom VM.Disk Type'],
-                                                    deployment_model_attributes['Google Cloud Provider.Google Cloud Custom VM.Disk Size'],
-                                                    network_data)
+                                                      cloud_provider_resource,
+                                                      vm_unique_name,
+                                                      deployment_model_attributes[deployment_path + '.Image Project'],
+                                                      deployment_model_attributes[deployment_path + '.Image Id'],
+                                                      deployment_model_attributes[deployment_path + '.Machine Type'],
+                                                      deployment_model_attributes[deployment_path + '.Disk Type'],
+                                                      deployment_model_attributes[deployment_path + '.Disk Size'],
+                                                      network_data)
             except Exception as e:
                 return DeployAppResult(actionId=deploy_app_action.actionId, success=False, errorMessage=e.message)
 
@@ -261,14 +263,14 @@ class GCPService:
             network_data = self.prepare_network_for_instance(connect_subnet_actions)
 
             deployment_model_attributes = deploy_app_action.actionParams.deployment.attributes
+            deployment_path = deploy_app_action.actionParams.deployment.deploymentPath
             try:
                 # using cloud provider SDK, creating the instance
                 # TODO: take the attributes from somewhere else (or get them as inputs to this function)
                 deploy_result = self._create_instance_from_template(deploy_app_action.actionId,
                                                                     cloud_provider_resource,
                                                                     vm_unique_name,
-                                                                    deployment_model_attributes[
-                                                                        'Google Cloud Provider.Google Cloud VM from Template.Template Name'],
+                                                                    deployment_model_attributes[deployment_path + '.Template Name'],
                                                                     network_data)
             except Exception as e:
                 return DeployAppResult(actionId=deploy_app_action.actionId, success=False, errorMessage=e.message)
@@ -290,7 +292,7 @@ class GCPService:
             raise ex
 
 
-    def _create_instance(self, actionId, cloud_provider_resource, vm_unique_name, image_id, machine_type,
+    def _create_instance(self, actionId, cloud_provider_resource, vm_unique_name, image_project, image_id, machine_type,
                          disk_type, disk_size, network_data, input_user='', decrypted_input_password=''):
 
         client = self._get_client()
@@ -325,7 +327,7 @@ class GCPService:
                     "autoDelete": True,
                     "deviceName": "instance-1",
                     "initializeParams": {
-                        "sourceImage": "projects/centos-cloud/global/images/{}".format(image_id),
+                        "sourceImage": "projects/{}/global/images/{}".format(image_project, image_id),
                         "diskType": "projects/{}/zones/{}/diskTypes/pd-{}".format(self.project, zone, diskType),
                         "diskSizeGb": disk_size
                     }

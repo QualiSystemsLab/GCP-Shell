@@ -15,15 +15,14 @@ imports:
 node_types:
 
   vendor.resource.Google Cloud VM from Template:
+    description: Create a single VM instance from an existing template
     derived_from: cloudshell.nodes.CustomDeploymentOption
-
-    #    ## custom attributes example for deployment option
     properties:
       Template Name:
         type: string
         description: 'The name of the template that should be used'
         default: ''
-        tags: [user_input]
+        tags: [user_input] # editable_only_in_app_template
 
     artifacts:
       icon:

@@ -16,12 +16,18 @@ node_types:
 
   vendor.resource.Google Cloud Custom VM:
     derived_from: cloudshell.nodes.CustomDeploymentOption
+    description: Create a single VM instance from scratch
     properties:
+      Image Project:
+        type: string
+        description: 'The project of the image to be used for deploying the app.'
+        default: ''
+        tags: [user_input] # editable_only_in_app_template
       Image Id:
         type: string
         description: 'The id of the image to be used for deploying the app.'
         default: ''
-        tags: [user_input]
+        tags: [user_input] # editable_only_in_app_template
       Machine Type:
         type: string
         description: 'The size of the instance. Can be one of the pre-defined ones or a custom one.'
