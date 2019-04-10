@@ -391,8 +391,18 @@ class GCPService:
         body_for_template = {"name": vm_unique_name,
                              "networkInterfaces": [
                                  {
+                                     "kind": "compute#networkInterface",
                                      "subnetwork": "projects/{}/regions/{}/subnetworks/{}".format(self.project, region,
                                                                                                   subnet),
+                                     "accessConfigs": [
+                                         {
+                                             "kind": "compute#accessConfig",
+                                             "name": "External NAT",
+                                             "type": "ONE_TO_ONE_NAT",
+                                             "networkTier": "STANDARD"
+                                         }
+                                     ],
+                                     "aliasIpRanges": []
                                  }]}
         request = client.instances().insert(project=self.project, zone=zone, body=body_for_template,
                                             sourceInstanceTemplate=instance_template_url)
