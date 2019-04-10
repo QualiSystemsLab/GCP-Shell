@@ -32,19 +32,21 @@ node_types:
         type: string
         description: 'The size of the instance. Can be one of the pre-defined ones or a custom one.'
         default: 'n1-standard-1'
-        #constraints: f1-micro, g1-small, n1-standard-1, n1-standard-2, n1-standard-4, n1-standard-8
-        tags: [user_input]
+        #constraints:
+        #  - valid_values: [f1-micro, g1-small, n1-standard-1, n1-standard-2, n1-standard-4, n1-standard-8]
+        tags: [user_input] # editable_only_in_app_template
       Disk Type:
         type: string
         description: The type of the disk drive. Standard or SSD.
         default: 'Standard'
-        #constraints: 'Standard', 'SSD'
-        tags: [user_input]
+        constraints:
+          - valid_values: [Standard, SSD]
+        tags: [user_input] # editable_only_in_app_template
       Disk Size:
         type: string
         description: 'The size of the disk in GB.'
         default: '10'
-        tags: [user_input]
+        tags: [user_input] # editable_only_in_app_template
 
     artifacts:
       icon:
