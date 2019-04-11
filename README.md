@@ -5,6 +5,7 @@ A repository for a Google Cloud Compute Provider to be used with QualiSystems' C
 This is a work in progress.
 
 ## Installation
+First, make sure that you have CloudShell installed.
 * [QualiSystems CloudShell](http://www.qualisystems.com/products/cloudshell/cloudshell-overview/)
 
 
