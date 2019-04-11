@@ -9,9 +9,7 @@ from wait_operations import *
 
 class GCPService:
     def __init__(self, project, json_cred_path, logger=None):
-        # self.client_id = client_id #'821156343289-pjhb8buulo6hpnvkfqgv11vfvhol3bac.apps.googleusercontent.com'
-        # self.client_secret = client_secret #'01h7ee77Qi7SHxXmGOZ37jot'
-        self.project = project #cloudshell-gcp
+        self.project = project
         self.logger = logger
         self.client = None
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = json_cred_path
