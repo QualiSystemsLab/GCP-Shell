@@ -300,6 +300,7 @@ class GCPService:
         region = "us-west1"  # TODO: take from resource, maybe in init
         zone = 'us-west1-b' # TODO: take from app? or cp?
         subnet = network_data.keys()[0] # TODO: handle multiple networks?
+        disk_size = disk_size.lower().replace("gb","") # just in case someone provides value as 10GB
 
         diskType = disk_type.lower()
 
