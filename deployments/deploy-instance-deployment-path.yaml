@@ -28,6 +28,13 @@ node_types:
         description: 'The id of the image to be used for deploying the app.'
         default: ''
         tags: [user_input] # editable_only_in_app_template
+      Image Source:
+        type: string
+        description: "The source of the image. Supported values: 'public' or 'private'. Use 'image' for private source not 'machine image'"
+        default: 'public'
+        tags: [ user_input ]
+        constraints:
+          - valid_values: [ public, private ]
       Machine Type:
         type: string
         description: 'The size of the instance. Can be one of the pre-defined ones or a custom one.'
