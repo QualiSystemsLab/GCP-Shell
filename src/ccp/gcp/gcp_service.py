@@ -214,8 +214,10 @@ class GCPService:
                                                       deployment_model_attributes[deployment_path + '.Machine Type'],
                                                       deployment_model_attributes[deployment_path + '.Disk Type'],
                                                       deployment_model_attributes[deployment_path + '.Disk Size'],
-                                                      network_data)
+                                                      network_data,
+                                                      image_source_type=deployment_model_attributes[deployment_path + '.Image Source'])
             except Exception as e:
+                self.logger.exception("==>")
                 return DeployAppResult(actionId=deploy_app_action.actionId, success=False, errorMessage=e.message)
 
             connect_subnet_results = []
@@ -289,9 +291,9 @@ class GCPService:
             self.logger.error(ex.message)
             raise ex
 
-
     def _create_instance(self, actionId, cloud_provider_resource, vm_unique_name, image_project, image_id, machine_type,
-                         disk_type, disk_size, network_data, input_user='', decrypted_input_password=''):
+                         disk_type, disk_size, network_data, input_user='', decrypted_input_password='',
+                         image_source_type='public'):
 
         client = self._get_client()
 
@@ -301,6 +303,8 @@ class GCPService:
         disk_size = disk_size.lower().replace("gb","") # just in case someone provides value as 10GB
 
         diskType = disk_type.lower()
+
+        source_image_uri = self._prepare_source_image(image_id, image_project, image_source_type)
 
         instance_body = {
             "kind": "compute#instance",
@@ -326,7 +330,7 @@ class GCPService:
                     "autoDelete": True,
                     "deviceName": "instance-1",
                     "initializeParams": {
-                        "sourceImage": "projects/{}/global/images/{}".format(image_project, image_id),
+                        "sourceImage": source_image_uri,
                         "diskType": "projects/{}/zones/{}/diskTypes/pd-{}".format(self.project, zone, diskType),
                         "diskSizeGb": disk_size
                     }
@@ -359,7 +363,7 @@ class GCPService:
             "deletionProtection": False
         }
 
-        self.logger.debug("instance_body: " + str(instance_body))
+        self.logger.info("instance_body: " + str(instance_body))
 
         request = client.instances().insert(project=self.project, zone=zone, body=instance_body)
         response = request.execute()
@@ -373,6 +377,17 @@ class GCPService:
                                vmName=vm_unique_name,
                                deployedAppAddress=vm_details_data.vmNetworkData[0].privateIpAddress,
                                vmDetailsData=vm_details_data)
+
+    def _prepare_source_image(self, image_id, image_project, image_source_type):
+        source_image_uri = ""
+        if image_source_type == "public":
+            source_image_uri = "projects/{}/global/images/{}".format(image_project, image_id)
+        elif image_source_type == "private":
+            source_image_uri = "global/images/{}".format(image_id)
+        else:
+            raise ValueError("Unsupported image source {}".format(image_source_type))
+
+        return source_image_uri
 
     def _create_instance_from_template(self, actionId, cloud_provider_resource, vm_unique_name, template_name,
                                        network_data, input_user='', decrypted_input_password=''):

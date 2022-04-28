@@ -3,7 +3,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 metadata:
   template_name: Google Cloud Provider
   template_author: yaniv.k
-  template_version: 0.9.8
+  template_version: 0.9.9
   template_icon: shell-icon.png
 
 description: >
